@@ -23,6 +23,7 @@
   (and 
     (< (count (re-seq #"#" (:text tweet))) 4) 
     (not (= "1405776728157425677" (:author_id tweet))) ; remove the book pirate
+    (not (= "1406092047933526019" (:author_id tweet))) ; remove another book pirate
     (not (:possibly_sensitive tweet))
     (not (str/starts-with? (:text tweet) "RT @"))))
 
