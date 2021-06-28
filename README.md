@@ -18,8 +18,6 @@ You can find instructions on deploying your pcp site with nginx [here](https://g
 
 Copyright © 2021 FIXME
 
-## Credits
-
 Built with :heart: and pcp
 
-<img src="https://raw.githubusercontent.com/alekcz/pcp/master/assets/logo/logo-alt.svg" width="80px">
+<img src="https://raw.githubusercontent.com/alekcz/pcp/master/assets/logo/logo-alt.svg" width="40px">
