@@ -22,6 +22,7 @@
 (defn quality? [tweet]
   (and 
     (< (count (re-seq #"#" (:text tweet))) 4) 
+    (not (= "1405776728157425677" (:author_id tweet))) ; remove the book pirate
     (not (:possibly_sensitive tweet))
     (not (str/starts-with? (:text tweet) "RT @"))))
 
@@ -40,16 +41,12 @@
         news' (-> @(http/get hn) :body (json/decode true))
         news (map #(assoc % :kind "story") (:hits news'))
         all (concat (vec news) (vec tweets))]
-    (pcp/html 
+    (pcp/render-html-unescaped 
       [:html {:style "font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;text-align: center;"
               :lang "en"}
         [:head 
           [:title "PCP Demo website"]
           [:link {:rel "shortcut icon" :type "image/svg" :href "logo-alt.svg"}]
-          ;; [:link {:rel "stylesheet" :href "https://cdn.jsdelivr.net/npm/codemirror@5.62.0/lib/codemirror.css"}]
-          ;; [:link {:rel "stylesheet" :href "https://cdn.jsdelivr.net/npm/codemirror@5.62.0/theme/monokai.css"}]
-          ;; [:script {:src "https://cdn.jsdelivr.net/npm/codemirror@5.62.0/lib/codemirror.min.js"}]
-          ;; [:script {:src "https://cdn.jsdelivr.net/npm/codemirror@5.62.0/mode/clojure/clojure.js"}]
           [:meta {:charset "utf-8"}]
           s/styles]
         [:body 
@@ -63,10 +60,6 @@
                 [:li [:a.accent {:target "_blank" :href "https://clojure.org/news/news"} "Clojure Deref"]]
                 [:li [:a.accent {:target "_blank" :href "https://clojureverse.org/"} "Clojureverse"]]
                 [:li [:a.accent {:target "_blank" :href "https://www.libhunt.com/l/clojure"} "Clojure LibHunt"]]]]
-            ;; [:h4.close-shave "Or play with the REPL"]
-            ;; [:p.close-shave "Enjoy!"]
-            ;; [:br]
-            ;; [:div#editor]
             [:br]]
           [:main
             [:h3 "News from Clojure"]
@@ -118,6 +111,5 @@
               [:small.mild-shave "This site is built with:"]
               [:img {:src "/logo-alt.svg" :width "40px"}]
               [:small.mild-shave "PCP: Clojure Processor"]]]]])))
-        ;; [:script "CodeMirror(document.getElementById('editor'),{theme:'monokai', lineNumbers: true, styleActiveLine: true, matchBrackets: true, value: '(defn why? [_] \\n\\t\"because\")\\n(why?)'})"]]])))
 
 (pcp/response 200 (resp) "text/html")            

@@ -50,7 +50,7 @@
                       :align-items "stretch" 
                       :margin "20px" 
                       :box-shadow "0px 0px 12px rgb(0 0 0 / 20%)" 
-                      :padding "20px"
+                      :padding "20px 20px 25px 20px"
                       :border-radius "15px"}])
     (css [:div.hacker-news 
                       {:display "flex" 
@@ -60,7 +60,7 @@
                       :align-items "stretch" 
                       :margin "20px" 
                       :box-shadow "0px 0px 12px rgb(0 0 0 / 20%)" 
-                      :padding "20px"
+                      :padding "20px 20px 25px 20px"
                       :border-radius "15px"}]) 
     (css [:img.profile {:margin-right "20px" :border-radius "100%"}])
     (css [:p.text {:text-align "left" :margin "0 0 10px 0"}])
@@ -70,7 +70,7 @@
     (css [:.close-shave {:margin "0px"}])
     (css [:.mild-shave {:margin "6px 0"}])
     (css [:ul {:padding-inline-start "20px"}])
-    (css [:a.go {:background-color "rgb(27, 149, 224)" :color "#FFF" :position "absolute" :bottom "0px" :right "0px" :text-decoration "none" :border-top-left-radius "15px" :border-bottom-right-radius "15px"}])
+    (css [:a.go {:font-size "13px" :background-color "rgb(27, 149, 224)" :color "#FFF" :position "absolute" :bottom "0px" :right "0px" :text-decoration "none" :border-top-left-radius "15px" :border-bottom-right-radius "15px"}])
     (css [:a.hn {:background-color "rgb(255, 102, 0)" :color "#FFF" :position "absolute" :bottom "0px" :right "0px" :text-decoration "none" :border-top-left-radius "15px" :border-bottom-right-radius "15px"}])
     (css [:a.username {:color "rgb(83, 100, 113)" :text-decoration "none"}])
     (css [:a.user {:color "rgb(83, 100, 113)" :text-decoration "none" :font-size "14px"}])
