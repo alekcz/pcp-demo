@@ -105,7 +105,8 @@
              [:h3 "About PCP"]
              [:p "Too long have we hustled to deploy clojure website. Too long have we spun up one instance per site. Too long have reminisced about PHP."]
              [:p "Today we enjoy the benefits of both. Welcome to PCP."]
-             [:p "Learn more on github:" [:br] [:a.accent {:href "https://github.com/alekcz/pcp" :target "_blank"} "https://github.com/alekcz/pcp"]]
+             [:p "Learn more about PCP:" [:br] [:a.accent {:href "https://github.com/alekcz/pcp"} "https://github.com/alekcz/pcp"]]
+             [:p "or view the source for this site:" [:br] [:a.accent {:href "https://github.com/alekcz/pcp-demo"} "https://github.com/alekcz/pcp-demo"]]
              [:div.grow]
              [:div.credits
               [:small.mild-shave "This site is built with:"]
