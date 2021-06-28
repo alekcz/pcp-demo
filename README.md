@@ -1,6 +1,6 @@
 ## PCP demo site
 
-This site demonstrates the use of PCP to build a simple website.
+This site demonstrates the use of PCP to build a simple website. You can view it online here: [https://pcp-demo.musketeers.io/](https://pcp-demo.musketeers.io/)
 
 ## Prerequisites
 You will need [PCP](https://github.com/alekcz/pcp) to run this project. 
