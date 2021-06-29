@@ -46,9 +46,25 @@
       [:html {:style "font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;text-align: center;"
               :lang "en"}
         [:head 
-          [:title "PCP Demo website"]
+          [:title "Clojure Pulse - PCP demo site"]
           [:link {:rel "shortcut icon" :type "image/svg" :href "logo-alt.svg"}]
           [:meta {:charset "utf-8"}]
+          [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge"}]
+          [:meta {:name "description" :content "The latest in Clojure across Twitter and Hacker News. Built with PCP."}]
+          [:meta {:name "keywords" :content "clojure, pcp, php, web development, lisp"}]
+          [:meta {:name "author" :content "alekcz"}]
+          [:meta {:name "twitter:site" :content "https://clojure-pulse.musketeers.io"}]
+          [:meta {:name "twitter:card" :content "summary"}]
+          [:meta {:name "twitter:title" :content "Clojure Pulse - PCP demo site"}]
+          [:meta {:name "twitter:description" :content "The latest in Clojure across Twitter and Hacker News. Built with PCP."}]
+          [:meta {:name "twitter:creator" :content "@alekcz"}]
+          [:meta {:name "twitter:image" :content "https://clojure-pulse.musketeers.io/social.png"}]
+          [:meta {:property "og:title" :content "Clojure Pulse - PCP demo site"}]
+          [:meta {:property "og:type" :content "website"}]
+          [:meta {:property "og:url" :content "https://clojure-pulse.musketeers.io"}]
+          [:meta {:property "og:image" :content "https://clojure-pulse.musketeers.io/social.png"}]
+          [:meta {:property "og:description" :content "The latest in Clojure across Twitter and Hacker News. Built with PCP."}]
+          [:meta {:property "og:site_name" :content "Clojure Pulse - PCP demo site"}]
           s/styles]
         [:body 
           [:header 
