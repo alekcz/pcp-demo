@@ -58,7 +58,7 @@
           [:meta {:name "twitter:title" :content "Clojure Pulse - PCP demo site"}]
           [:meta {:name "twitter:description" :content "The latest in Clojure across Twitter and Hacker News. Built with PCP."}]
           [:meta {:name "twitter:creator" :content "@alekcz"}]
-          [:meta {:name "twitter:image" :content "https://clojure-pulse.musketeers.io/social.png"}]
+          [:meta {:name "twitter:image" :content "https://clojure-pulse.musketeers.io/twittercard.png"}]
           [:meta {:property "og:title" :content "Clojure Pulse - PCP demo site"}]
           [:meta {:property "og:type" :content "website"}]
           [:meta {:property "og:url" :content "https://clojure-pulse.musketeers.io"}]
