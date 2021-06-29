@@ -4,7 +4,10 @@
             [clojure.string :as str]
             [org.httpkit.client :as http]
             [cheshire.core :as json]
-            [tick.alpha.api :as t]))
+            [tick.alpha.api :as t]
+            [konserve-jdbc.core :refer [new-jdbc-store]]
+            [konserve.core :as k]
+            [clojure.core.async :as async :refer [<!!]]))
 
 (def query (str "https://api.twitter.com/2/tweets/search/recent?query=clojure"
                 "&expansions=author_id,attachments.media_keys"
@@ -18,6 +21,15 @@
                 "&page=1"
                 "&numericFilters=created_at_i>" (- (pcp/now) 604800)
                 "&tags=story"))
+
+(def conn {:dbtype "sqlite"
+           :dbname "./data/konserve"})
+
+(def store (<!! (new-jdbc-store conn :table "konserve")))
+(def visits (atom (<!! (k/get-in store [:visits]))))
+(when (nil? @visits) (k/assoc-in store [:visits] 0))
+(k/update-in store [:visits] inc)
+
 
 (defn quality? [tweet]
   (and 
@@ -76,6 +88,8 @@
         [:body 
           [:header 
             [:h1 "Clojure Pulse"]
+            (when-not (nil? @visits)
+              [:small.overlap (str "Viewed " @visits " times")])
             [:p "The latest in Clojure across Twitter and Hacker News."]
             [:p.close-shave "Other places you can find Clojure on the web:"
               [:ul.close-shave 

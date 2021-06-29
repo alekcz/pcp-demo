@@ -68,6 +68,7 @@
     (css [:a.accent {:color "#00A89D" :text-decoration "none"}])
     (css [:div.grow {:flex-grow "99"}])
     (css [:.close-shave {:margin "0px"}])
+    (css [:.overlap {:margin-top "-20px" :font-style "italic"}])
     (css [:.mild-shave {:margin "6px 0"}])
     (css [:ul {:padding-inline-start "20px"}])
     (css [:a.go {:font-size "13px" :background-color "rgb(27, 149, 224)" :color "#FFF" :position "absolute" :bottom "0px" :right "0px" :text-decoration "none" :border-top-left-radius "15px" :border-bottom-right-radius "15px"}])
