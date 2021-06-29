@@ -22,10 +22,13 @@
                 "&numericFilters=created_at_i>" (- (pcp/now) 604800)
                 "&tags=story"))
 
-(def conn {:dbtype "sqlite"
-           :dbname "./data/konserve"})
+(def pg {   :dbtype "postgresql"
+            :dbname (pcp/secret "POSTGRES_DB")
+            :host (pcp/secret "POSTGRES_HOST")
+            :user (pcp/secret "POSTGRES_USER")
+            :password (pcp/secret "POSTGRES_PASSWORD")})
 
-(def store (<!! (new-jdbc-store conn :table "konserve")))
+(def store (<!! (new-jdbc-store pg :table "konserve")))
 (def visits (atom (<!! (k/get-in store [:visits]))))
 (when (nil? @visits) (k/assoc-in store [:visits] 0))
 (k/update-in store [:visits] inc)
