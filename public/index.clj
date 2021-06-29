@@ -8,7 +8,7 @@
 
 (def query (str "https://api.twitter.com/2/tweets/search/recent?query=clojure"
                 "&expansions=author_id,attachments.media_keys"
-                "&tweet.fields=author_id,created_at,possibly_sensitive,id,public_metrics,attachments"
+                "&tweet.fields=author_id,created_at,possibly_sensitive,id,public_metrics,attachments,entities"
                 "&user.fields=id,name,url,profile_image_url,description"
                 "&media.fields=duration_ms,height,media_key,preview_image_url,public_metrics,type,url,width"
                 "&max_results=100"))
@@ -27,12 +27,19 @@
     (not (:possibly_sensitive tweet))
     (not (str/starts-with? (:text tweet) "RT @"))))
 
-(defn hightlight [text]
-  (-> (str " " text)
-    (str/replace #"\n" "<br/>")
-    (str/replace #"#(.*?)($|\s)" "<a class='mentions' href='https://twitter.com/hashtag/$1' target='_blank'>#$1</a> ")
-    (str/replace #"@(.*?)($|\s)" "<a class='mentions' href='https://twitter.com/$1' target='_blank'>@$1</a> ")
-    (str/replace #"(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))($|\s)" "<a class='mentions' href='$1' target='_blank'>$1</a> ")))
+(defn replace-several [content replacements]
+      (let [replacement-list (partition 2 replacements)]
+        (reduce #(apply str/replace %1 %2) content replacement-list)))
+
+(defn make-link [url text]
+  (str "<a class='mentions' href='" url "' target='_blank'>" text "</a> "))
+
+(defn hightlight [t]
+  (-> (str " " (:text t))
+      (str/replace #"#(\S*?)($| |\n)" "<a class='mentions' href='https://twitter.com/hashtag/$1' target='_blank'>#$1</a> ")
+      (str/replace #"@(\S*?)($| |\n)" "<a class='mentions' href='https://twitter.com/$1' target='_blank'>@$1</a> ")
+      (str/replace #"\n" "<br/>")
+      (replace-several (->> t :entities :urls (map (fn [ob] [(str (:url ob)) (make-link (:url ob) (:expanded_url ob))])) flatten vec))))
 
 (defn resp []
   (let [tweets' (-> @(http/get query {:headers {"Authorization" (str "Bearer " (pcp/secret "TWITTER_BEARER"))}}) :body (json/decode true))
@@ -110,7 +117,8 @@
                         (let [time (t/instant (:created_at t))]
                           [:span.time (str (t/day-of-month time) " " (str/capitalize (t/month time)) " " (t/year time) " - " (t/time time))])]
                       [:p.text 
-                        (hightlight (:text t))]
+                        (str t)
+                        (hightlight t)]
                       (when (= (:type m) "photo") 
                         [:br]
                         [:br]
