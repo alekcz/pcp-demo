@@ -117,7 +117,6 @@
                         (let [time (t/instant (:created_at t))]
                           [:span.time (str (t/day-of-month time) " " (str/capitalize (t/month time)) " " (t/year time) " - " (t/time time))])]
                       [:p.text 
-                        (str t)
                         (hightlight t)]
                       (when (= (:type m) "photo") 
                         [:br]
