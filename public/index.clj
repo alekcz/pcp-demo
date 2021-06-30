@@ -9,7 +9,9 @@
             [konserve.core :as k]
             [clojure.core.async :as async :refer [<!!]]))
 
-(def query (str "https://api.twitter.com/2/tweets/search/recent?query=clojure"
+;; (pcp/reset) ;clear the application context
+
+(defonce query (str "https://api.twitter.com/2/tweets/search/recent?query=clojure"
                 "&expansions=author_id,attachments.media_keys"
                 "&tweet.fields=author_id,created_at,possibly_sensitive,id,public_metrics,attachments,entities"
                 "&user.fields=id,name,url,profile_image_url,description"
@@ -22,17 +24,24 @@
                 "&numericFilters=created_at_i>" (- (pcp/now) 604800)
                 "&tags=story"))
 
-(def pg {   :dbtype "postgresql"
-            :dbname (pcp/secret "POSTGRES_DB")
-            :host (pcp/secret "POSTGRES_HOST")
-            :user (pcp/secret "POSTGRES_USER")
-            :password (pcp/secret "POSTGRES_PASSWORD")})
+(defonce pg {:dbtype "postgresql"
+             :dbname (pcp/secret "POSTGRES_DB")
+             :host (pcp/secret "POSTGRES_HOST")
+             :user (pcp/secret "POSTGRES_USER")
+             :password (pcp/secret "POSTGRES_PASSWORD")}) ; use defonce to persist between calls on this document root
 
-(def store (<!! (new-jdbc-store pg :table "konserve")))
-(def visits (atom (<!! (k/get-in store [:visits]))))
-(when (nil? @visits) (k/assoc-in store [:visits] 0))
-(k/update-in store [:visits] inc)
+(defonce store (<!! (new-jdbc-store pg :table "konserve")))
+(defonce visits (atom (or (<!! (k/get-in store [:visits])) 0)))
 
+(defn log-visit []
+  (future 
+    (let [v (or (<!! (k/get-in store [:visits])) 0)]
+      (if (zero? v)
+        (k/assoc-in store [:visits] v)
+        (k/update-in store [:visits] inc))
+      (swap! visits (fn [_] (inc v))))))
+
+(log-visit)
 
 (defn quality? [tweet]
   (and 
@@ -91,8 +100,7 @@
         [:body 
           [:header 
             [:h1 "Clojure Pulse"]
-            (when-not (nil? @visits)
-              [:small.overlap (str "Viewed " @visits " times")])
+            [:small.overlap (str "Viewed " @visits " times")]
             [:p "The latest in Clojure across Twitter and Hacker News."]
             [:p.close-shave "Other places you can find Clojure on the web:"
               [:ul.close-shave 
@@ -129,7 +137,7 @@
                     [:div.grow
                       [:p.text 
                         [:strong (str (:name u) "   ")]
-                        [:a.username {:href (str "https://twitter.com/" (:username u))} (str "@" (:username u))]
+                        [:a.username {:target "_blank" :href (str "https://twitter.com/" (:username u))} (str "@" (:username u))]
                         "&nbsp;&nbsp;&middot;&nbsp;&nbsp;"
                         (let [time (t/instant (:created_at t))]
                           [:span.time (str (t/day-of-month time) " " (str/capitalize (t/month time)) " " (t/year time) " - " (t/time time))])]
