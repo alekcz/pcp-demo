@@ -34,14 +34,15 @@
 (defonce visits (atom (or (<!! (k/get-in store [:visits])) 0)))
 
 (defn log-visit []
-  (future 
-    (let [v (or (<!! (k/get-in store [:visits])) 0)]
-      (if (zero? v)
-        (k/assoc-in store [:visits] v)
-        (k/update-in store [:visits] inc))
-      (swap! visits (fn [_] (inc v))))))
-
-(log-visit)
+    (future 
+      (let [v (or (<!! (k/get-in store [:visits])) 0)]
+        (if (zero? v)
+          (k/assoc-in store [:visits] v)
+          (k/update-in store [:visits] inc))
+        (swap! visits (fn [_] (inc v))))))
+        
+(when (-> pcp/request :query-params :fast nil?)
+  (log-visit))
 
 (defn quality? [tweet]
   (and 
@@ -100,7 +101,8 @@
         [:body 
           [:header 
             [:h1 "Clojure Pulse"]
-            [:small.overlap (str "Viewed " @visits " times")]
+            (when (-> pcp/request :query-params :fast nil?)
+              [:small.overlap (str "Viewed " @visits " times")])
             [:p "The latest in Clojure across Twitter and Hacker News."]
             [:p.close-shave "Other places you can find Clojure on the web:"
               [:ul.close-shave 
