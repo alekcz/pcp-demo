@@ -9,8 +9,6 @@
             [konserve.core :as k]
             [clojure.core.async :as async :refer [<!!]]))
 
-;; (pcp/reset) ;clear the application context
-
 (defonce query (str "https://api.twitter.com/2/tweets/search/recent?query=clojure"
                 "&expansions=author_id,attachments.media_keys"
                 "&tweet.fields=author_id,created_at,possibly_sensitive,id,public_metrics,attachments,entities"
@@ -18,20 +16,23 @@
                 "&media.fields=duration_ms,height,media_key,preview_image_url,public_metrics,type,url,width"
                 "&max_results=100"))
 
-(def hn (str "http://hn.algolia.com/api/v1/search_by_date?query=clojure"
-                "&hitsPerPage=100"
-                "&page=1"
-                "&numericFilters=created_at_i>" (- (pcp/now) 604800)
-                "&tags=story"))
+(def hn (str "http://hn.algolia.com/api/v1/search_by_date?query=clojure&tags=(story,front_page,show_hn,ask_hn)"))
 
-(defonce pg {:dbtype "postgresql"
-             :dbname (pcp/secret "POSTGRES_DB")
-             :host (pcp/secret "POSTGRES_HOST")
-             :user (pcp/secret "POSTGRES_USER")
-             :password (pcp/secret "POSTGRES_PASSWORD")}) ; use defonce to persist between calls on this document root
 
-(defonce store (<!! (new-jdbc-store pg :table "konserve")))
-(defonce visits (atom (or (<!! (k/get-in store [:visits])) 0)))
+(def fast (-> pcp/request :query-params :fast some?))
+
+(def pg (when-not fast 
+          (pcp/persist :pg (fn [] { :dbtype "postgresql"
+                                    :dbname (pcp/secret "POSTGRES_DB")
+                                    :host (pcp/secret "POSTGRES_HOST")
+                                    :user (pcp/secret "POSTGRES_USER")
+                                    :password (pcp/secret "POSTGRES_PASSWORD")}))))
+
+(def store (when-not fast 
+            (pcp/persist :store (fn [] (<!! (new-jdbc-store pg :table "konserve"))))))
+
+(def visits (when-not fast 
+              (atom (or (<!! (k/get-in store [:visits])) 0))))
 
 (defn log-visit []
     (future 
@@ -41,7 +42,7 @@
           (k/update-in store [:visits] inc))
         (swap! visits (fn [_] (inc v))))))
         
-(when (-> pcp/request :query-params :fast nil?)
+(when-not fast
   (log-visit))
 
 (defn quality? [tweet]
@@ -59,6 +60,9 @@
 (defn make-link [url text]
   (str "<a class='mentions' href='" url "' target='_blank'>" text "</a> "))
 
+(defn either [one two]
+  (if (str/blank? one) two one))  
+
 (defn hightlight [t]
   (-> (str " " (:text t))
       (str/replace #"#(\S*?)($| |\n)" "<a class='mentions' href='https://twitter.com/hashtag/$1' target='_blank'>#$1</a> ")
@@ -71,7 +75,8 @@
         tweets (filter quality? (map #(assoc % :kind "tweet") (:data tweets')))
         users (->> tweets' :includes :users)
         media (->> tweets' :includes :media)
-        news' (-> @(http/get hn) :body (json/decode true))
+        hn-resp @(http/get hn)
+        news' (-> hn-resp :body (json/decode true))
         news (map #(assoc % :kind "story") (:hits news'))
         all (concat (vec news) (vec tweets))]
     (pcp/render-html-unescaped 
@@ -101,7 +106,7 @@
         [:body 
           [:header 
             [:h1 "Clojure Pulse"]
-            (when (-> pcp/request :query-params :fast nil?)
+            (when-not fast
               [:small.overlap (str "Viewed " @visits " times")])
             [:p "The latest in Clojure across Twitter and Hacker News."]
             [:p.close-shave "Other places you can find Clojure on the web:"
@@ -119,9 +124,11 @@
                 [:div.hacker-news 
                   [:div.grow
                     [:p.text 
-                      [:strong (str (:title t) "   ")]
+                      [:strong (either (-> t :story_title) (:title t))]
                       [:br]
-                      [:span.time "points " (:points t)]
+                      [:a {:href (:url t) :target "_blank"} (:url t)]
+                      [:br]
+                      [:span.time  (:points t) " points"]
                       "&nbsp;&nbsp;&middot;&nbsp;&nbsp;"
                       [:a.username {:href (str "https://news.ycombinator.com/user?id=" (:author t))} (:author t)]
                       "&nbsp;&nbsp;&middot;&nbsp;&nbsp;"
@@ -129,9 +136,8 @@
                         [:span.time (str (t/day-of-month time) " " (str/capitalize (t/month time)) " " (t/year time) " - " (t/time time))])]
                     [:p.text 
                       (:story_text t)]]
-                  (when (:url t)
-                    [:a.hn {:href (-> t :url str) :target "_blank"} 
-                      [:div.view "Go to HN \u2192"]])]
+                    [:a.hn {:href  (str "https://news.ycombinator.com/item?id=" (:objectID t)) :target "_blank"} 
+                      [:div.view "Go to HN \u2192"]]]
                 (let [u (->> (filter #(= (:id %) (:author_id t)) users) first) 
                       m (->> (filter #(= (:media_key %) (-> t :attachments :media_keys first)) media) first)]
                   [:div.tweet 
