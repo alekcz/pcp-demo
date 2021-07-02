@@ -117,7 +117,6 @@
             [:br]]
           [:main
             [:h3 "News from Clojure"]
-            (str "Count: " (count (:data tweets')))
             (for [t (reverse (sort-by :created_at all))]
               (if (= (:kind t) "story")
                 [:div.hacker-news 
