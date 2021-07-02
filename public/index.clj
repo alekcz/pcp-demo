@@ -9,7 +9,7 @@
             [konserve.core :as k]
             [clojure.core.async :as async :refer [<!!]]))
 
-(defonce query (str "https://api.twitter.com/2/tweets/search/recent?query=clojure"
+(defonce query (str "https://api.twitter.com/2/tweets/search/recent?query=clojure%20-is:retweet"
                 "&expansions=author_id,attachments.media_keys"
                 "&tweet.fields=author_id,created_at,possibly_sensitive,id,public_metrics,attachments,entities"
                 "&user.fields=id,name,url,profile_image_url,description"
@@ -47,11 +47,9 @@
 
 (defn quality? [tweet]
   (and 
-    (< (count (re-seq #"#" (:text tweet))) 4) 
     (not (= "1405776728157425677" (:author_id tweet))) ; remove the book pirate
     (not (= "1406092047933526019" (:author_id tweet))) ; remove another book pirate
-    (not (:possibly_sensitive tweet))
-    (not (str/starts-with? (:text tweet) "RT @"))))
+    (not (:possibly_sensitive tweet))))
 
 (defn replace-several [content replacements]
       (let [replacement-list (partition 2 replacements)]
@@ -119,6 +117,7 @@
             [:br]]
           [:main
             [:h3 "News from Clojure"]
+            (str "Count: " (count (:data tweets')))
             (for [t (reverse (sort-by :created_at all))]
               (if (= (:kind t) "story")
                 [:div.hacker-news 
