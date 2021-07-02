@@ -65,8 +65,8 @@
 
 (defn hightlight [t]
   (-> (str " " (:text t))
-      (str/replace #"#(\S*?)($| |\n)" "<a class='mentions' href='https://twitter.com/hashtag/$1' target='_blank'>#$1</a> ")
-      (str/replace #"@(\S*?)($| |\n)" "<a class='mentions' href='https://twitter.com/$1' target='_blank'>@$1</a> ")
+      (str/replace #"#(\S+?)($| |([.!?\\-])|\n)" "<a class='mentions' href='https://twitter.com/hashtag/$1' target='_blank'>#$1</a>$2")
+      (str/replace #"@(\S+?)($| |([.!?\\-])|\n)" "<a class='mentions' href='https://twitter.com/$1' target='_blank'>@$1</a>$2")
       (str/replace #"\n" "<br/>")
       (replace-several (->> t :entities :urls (map (fn [ob] [(str (:url ob)) (make-link (:url ob) (:expanded_url ob))])) flatten vec))))
 
