@@ -84,6 +84,7 @@
           [:title "Clojure Pulse - PCP demo site"]
           [:link {:rel "shortcut icon" :type "image/svg" :href "logo-alt.svg"}]
           [:meta {:charset "utf-8"}]
+          [:meta {:name "viewport" :content "width=device-width,initial-scale=1"}]
           [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge"}]
           [:meta {:name "description" :content "The latest in Clojure across Twitter and Hacker News. Built with PCP."}]
           [:meta {:name "keywords" :content "clojure, pcp, php, web development, lisp"}]

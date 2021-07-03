@@ -1,5 +1,7 @@
 (ns styles.main
-  (:require [garden.core :refer [css]]))
+  (:require [garden.core :refer [css]]
+            [garden.stylesheet :refer [at-media]]
+            [garden.units :refer [px]]))
 
 (def styles 
   [:style
@@ -51,7 +53,8 @@
                       :margin "20px" 
                       :box-shadow "0px 0px 12px rgb(0 0 0 / 20%)" 
                       :padding "20px 20px 25px 20px"
-                      :border-radius "15px"}])
+                      :border-radius "15px"
+                      :overflow-x "hidden"}])
     (css [:div.hacker-news 
                       {:display "flex" 
                       :position "relative"
@@ -78,4 +81,36 @@
     (css [:span.time {:color "rgb(83, 100, 113)" :font-size "14px"}])
     (css [:div.view {:display "flex" :justify-content "center" :align-item "center" :padding "8px" }])
     (css [:img.view {:height "20px" :width "20px" :margin-left "10px"}])
-    (css [:.credits {:text-align "center" :display "flex" :flex-direction "column" :align-items "center" :justify-content "center"}])])
+    (css [:.credits {:text-align "center" :display "flex" :flex-direction "column" :align-items "center" :justify-content "center"}])
+    (css [:a {:overflow-wrap "break-word"
+              :word-wrap "break-word"
+              :word-break "break-word"}])
+    (css
+         (at-media {:max-width (px 900)}
+           [:body {:flex-direction "column"}]))
+    (css
+         (at-media {:max-width (px 900)}
+           [:div.tweet {:flex-direction "column"}]))  
+    (css
+         (at-media {:max-width (px 900)}
+           [:img.profile {:margin-bottom (px 7)}]))                      
+    (css
+         (at-media {:max-width (px 900)}
+           [:aside {:position "relative"
+                    :min-width "100vw"
+                    :max-width "100vw"}]))
+    (css
+         (at-media {:max-width (px 900)}
+           [:main {:max-width "96vw"
+                    :margin "0 2vw"}]))                    
+    (css
+         (at-media {:max-width (px 900)}
+           [:header {:position "relative"
+                    :min-width "100vw"
+                    :max-width "100vw"}]))           
+    (css
+         (at-media {:max-width (px 900)}
+           [:p {:font-size (px 14)}]))
+    (css
+         (at-media {:max-width (px 900)}
+           [:a.accent {:font-size (px 14)}]))])
