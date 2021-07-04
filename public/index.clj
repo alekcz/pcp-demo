@@ -69,7 +69,7 @@
       (replace-several (->> t :entities :urls (map (fn [ob] [(str (:url ob)) (make-link (:url ob) (:expanded_url ob))])) flatten vec))))
 
 (defn resp []
-  (let [tweets' (-> @(http/get query {:headers {"Authorization" (str "Bearer " (pcp/secret "TWITTER_BEARER"))}}) :body (json/decode true))
+  (let [tweets' (-> @(http/get query {:headers {"Authorization" (str "Bearer " (pcp/persist :twitter (fn [] (pcp/secret "TWITTER_BEARER"))))}}) :body (json/decode true))
         tweets (filter quality? (map #(assoc % :kind "tweet") (:data tweets')))
         users (->> tweets' :includes :users)
         media (->> tweets' :includes :media)
