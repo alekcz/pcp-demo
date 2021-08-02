@@ -18,6 +18,6 @@ You can find instructions on deploying your PCP site with nginx [here](https://g
 
 Copyright © 2020 Alexander Oloo
 
-This proct is licensed under the MIT License.
+This project is licensed under the MIT License.
 
 <img src="https://raw.githubusercontent.com/alekcz/pcp/master/assets/logo/logo-alt.svg" width="40px">
