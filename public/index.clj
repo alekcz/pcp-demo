@@ -14,7 +14,7 @@
                 "&tweet.fields=author_id,created_at,possibly_sensitive,id,public_metrics,attachments,entities"
                 "&user.fields=id,name,url,profile_image_url,description"
                 "&media.fields=duration_ms,height,media_key,preview_image_url,public_metrics,type,url,width"
-                "&max_results=100"))
+                "&max_results=70"))
 
 (def hn (str "http://hn.algolia.com/api/v1/search_by_date?query=clojure&tags=(story,front_page,show_hn,ask_hn)"))
 
@@ -30,6 +30,8 @@
 
 (def store (when-not fast 
             (pcp/persist :store (fn [] (<!! (new-jdbc-store pg :table "konserve"))))))
+
+(def twitter-auth (pcp/persist :twitter-auth (fn [] (pcp/secret "TWITTER_BEARER"))))
 
 (def visits (when-not fast 
               (atom (or (<!! (k/get-in store [:visits])) 0))))
@@ -69,12 +71,12 @@
       (replace-several (->> t :entities :urls (map (fn [ob] [(str (:url ob)) (make-link (:url ob) (:expanded_url ob))])) flatten vec))))
 
 (defn resp []
-  (let [tweets' (-> @(http/get query {:headers {"Authorization" (str "Bearer " (pcp/persist :twitter (fn [] (pcp/secret "TWITTER_BEARER"))))}}) :body (json/decode true))
+  (let [tweets' (pcp/persist :twitter (fn [] (-> @(http/get query {:headers {"Authorization" (str "Bearer " twitter-auth)}}) :body (json/decode true))))
         tweets (filter quality? (map #(assoc % :kind "tweet") (:data tweets')))
         users (->> tweets' :includes :users)
         media (->> tweets' :includes :media)
         hn-resp @(http/get hn)
-        news' (-> hn-resp :body (json/decode true))
+        news' (try (-> hn-resp :body (json/decode true)) (catch Exception _ []))
         news (map #(assoc % :kind "story") (:hits news'))
         all (concat (vec news) (vec tweets))]
     (pcp/render-html-unescaped 
@@ -118,6 +120,11 @@
             [:br]]
           [:main
             [:h3 "News from Clojure"]
+            (when (empty? tweets)
+              [:div
+                [:p "So turns out this was more popular than I ever imagined so I've burned through my free Twitter api calls."]
+                [:p "I'm looking to sort this out with spend $149 per month. Worst comes to worst I'll build a cache so we don't run out after the 13th when my API usage resets."]
+                [:p "Sorry folks. Until then here's some hacker news."]])
             (for [t (reverse (sort-by :created_at all))]
               (if (= (:kind t) "story")
                 [:div.hacker-news 
